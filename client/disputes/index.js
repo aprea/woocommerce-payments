@@ -103,51 +103,56 @@ export const DisputesList = () => {
 	const { disputes, isLoading } = useDisputes( getQuery() );
 
 	const rows = disputes.map( ( dispute ) => {
-		const order = dispute.order
+		const {
+			amount = 0,
+			currency = 'USD',
+			customer_name: customerName = '',
+			customer_email: customerEmail = '',
+			customer_country: customerCountry = '',
+			created,
+			dispute_id: disputeId,
+			due_by: dueBy,
+			order: disputeOrder,
+			reason,
+			source,
+			status,
+		} = dispute;
+
+		const order = disputeOrder
 			? {
-					value: dispute.order.number,
-					display: <OrderLink order={ dispute.order } />,
+					value: disputeOrder.number,
+					display: <OrderLink order={ disputeOrder } />,
 			  }
 			: null;
 
 		const clickable = ( children ) => (
-			<ClickableCell href={ getDetailsURL( dispute.id, 'disputes' ) }>
+			<ClickableCell href={ getDetailsURL( disputeId, 'disputes' ) }>
 				{ children }
 			</ClickableCell>
 		);
 
 		const detailsLink = (
-			<DetailsLink id={ dispute.id } parentSegment="disputes" />
+			<DetailsLink id={ disputeId } parentSegment="disputes" />
 		);
 
-		const reasonMapping = reasons[ dispute.reason ];
+		const reasonMapping = reasons[ reason ];
 		const reasonDisplay = reasonMapping
 			? reasonMapping.display
-			: formatStringValue( dispute.reason );
-
-		const charge = dispute.charge || {};
-		const source = ( ( charge.payment_method_details || {} ).card || {} )
-			.brand;
-		const customer = charge.billing_details || {};
+			: formatStringValue( reason );
 
 		const data = {
 			amount: {
-				value: dispute.amount / 100,
+				value: amount / 100,
 				display: clickable(
-					formatExplicitCurrency(
-						dispute.amount || 0,
-						dispute.currency || 'USD'
-					)
+					formatExplicitCurrency( amount, currency )
 				),
 			},
 			status: {
-				value: dispute.status,
-				display: clickable(
-					<DisputeStatusChip status={ dispute.status } />
-				),
+				value: status,
+				display: clickable( <DisputeStatusChip status={ status } /> ),
 			},
 			reason: {
-				value: dispute.reason,
+				value: reason,
 				display: clickable( reasonDisplay ),
 			},
 			source: {
@@ -159,41 +164,35 @@ export const DisputesList = () => {
 				),
 			},
 			created: {
-				value: dispute.created * 1000,
+				value: created * 1000,
 				display: clickable(
-					dateI18n(
-						'M j, Y',
-						moment( dispute.created * 1000 ).toISOString()
-					)
+					dateI18n( 'M j, Y', moment( created * 1000 ).toISOString() )
 				),
 			},
 			dueBy: {
-				value: dispute.evidence_details.due_by * 1000,
+				value: dueBy * 1000,
 				display: clickable(
 					dateI18n(
 						'M j, Y / g:iA',
-						moment(
-							dispute.evidence_details.due_by * 1000
-						).toISOString()
+						moment( dueBy * 1000 ).toISOString()
 					)
 				),
 			},
 			order,
 			customer: {
-				value: customer.name,
-				display: clickable( customer.name ),
+				value: customerName,
+				display: clickable( customerName ),
 			},
 			email: {
-				value: customer.email,
-				display: clickable( customer.email ),
+				value: customerEmail,
+				display: clickable( customerEmail ),
 			},
 			country: {
-				value: ( customer.address || {} ).country,
-				display: clickable( ( customer.address || {} ).country ),
+				value: customerCountry,
+				display: clickable( customerCountry ),
 			},
-			details: { value: dispute.id, display: detailsLink },
+			details: { value: disputeId, display: detailsLink },
 		};
-
 		return headers.map( ( { key } ) => data[ key ] || { display: null } );
 	} );
 
