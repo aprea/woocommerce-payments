@@ -689,12 +689,16 @@ class WC_Payments_API_Client {
 	/**
 	 * List disputes
 	 *
+	 * @param  int $page The page index to retrieve.
+	 * @param  int $page_size The number of items the page contains.
 	 * @return array
 	 * @throws API_Exception - Exception thrown on request failure.
 	 */
-	public function list_disputes() {
+	public function list_disputes( $page = 0, $page_size = 25 ) {
 		$query = [
-			'limit' => 100,
+			'limit'    => 100,
+			'page'     => $page,
+			'pagesize' => $page_size,
 		];
 
 		$disputes = $this->request( $query, self::DISPUTES_API, self::GET );

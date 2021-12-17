@@ -4,7 +4,7 @@
  * External dependencies
  */
 import { dateI18n } from '@wordpress/date';
-import { __ } from '@wordpress/i18n';
+import { _n, __ } from '@wordpress/i18n';
 import moment from 'moment';
 import { TableCard } from '@woocommerce/components';
 import { onQueryChange, getQuery } from '@woocommerce/navigation';
@@ -17,7 +17,7 @@ import {
 /**
  * Internal dependencies.
  */
-import { useDisputes } from 'wcpay/data';
+import { useDisputes, useDisputesSummary } from 'wcpay/data';
 import OrderLink from 'components/order-link';
 import DisputeStatusChip from 'components/dispute-status-chip';
 import ClickableCell from 'components/clickable-cell';
@@ -102,10 +102,15 @@ const headers = [
 export const DisputesList = () => {
 	const { disputes, isLoading } = useDisputes( getQuery() );
 
+	const {
+		disputesSummary,
+		isLoading: isSummaryLoading,
+	} = useDisputesSummary();
+
 	const rows = disputes.map( ( dispute ) => {
 		const {
 			amount = 0,
-			currency = 'USD',
+			currency,
 			customer_name: customerName = '',
 			customer_email: customerEmail = '',
 			customer_country: customerCountry = '',
@@ -144,7 +149,7 @@ export const DisputesList = () => {
 			amount: {
 				value: amount / 100,
 				display: clickable(
-					formatExplicitCurrency( amount, currency )
+					formatExplicitCurrency( amount, currency || 'usd' ) // TODO remove or clause when server returns complete response
 				),
 			},
 			status: {
@@ -164,17 +169,20 @@ export const DisputesList = () => {
 				),
 			},
 			created: {
-				value: created * 1000,
+				value: created,
 				display: clickable(
-					dateI18n( 'M j, Y', moment( created * 1000 ).toISOString() )
+					dateI18n(
+						'M j, Y',
+						moment.utc( created ).local().toISOString()
+					)
 				),
 			},
 			dueBy: {
-				value: dueBy * 1000,
+				value: dueBy,
 				display: clickable(
 					dateI18n(
 						'M j, Y / g:iA',
-						moment( dueBy * 1000 ).toISOString()
+						moment.utc( dueBy ).local().toISOString()
 					)
 				),
 			},
@@ -250,6 +258,23 @@ export const DisputesList = () => {
 		} );
 	}
 
+	const isDisputesSummaryDataLoaded =
+		disputesSummary.count !== undefined && false === isSummaryLoading;
+	let summary = null;
+	if ( isDisputesSummaryDataLoaded ) {
+		summary = [
+			{
+				label: _n(
+					'dispute',
+					'disputes',
+					disputesSummary.count,
+					'woocommerce-payments'
+				),
+				value: `${ disputesSummary.count }`,
+			},
+		];
+	}
+
 	return (
 		<Page>
 			<TestModeNotice topic={ topics.disputes } />
@@ -257,10 +282,11 @@ export const DisputesList = () => {
 				className="wcpay-disputes-list"
 				title={ __( 'Disputes', 'woocommerce-payments' ) }
 				isLoading={ isLoading }
-				rowsPerPage={ 10 }
-				totalRows={ 10 }
+				rowsPerPage={ parseInt( getQuery().per_page ?? '', 10 ) || 25 }
+				totalRows={ disputesSummary.count || 0 }
 				headers={ headers }
 				rows={ rows }
+				summary={ summary }
 				query={ getQuery() }
 				onQueryChange={ onQueryChange }
 				actions={ [

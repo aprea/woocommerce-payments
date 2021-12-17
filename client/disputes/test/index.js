@@ -10,11 +10,12 @@ import os from 'os';
  * Internal dependencies
  */
 import DisputesList from '../';
-import { useDisputes } from 'wcpay/data';
+import { useDisputes, useDisputesSummary } from 'wcpay/data';
 import { formatDate, getUnformattedAmount } from 'wcpay/utils/test-utils';
 
 jest.mock( 'wcpay/data', () => ( {
 	useDisputes: jest.fn(),
+	useDisputesSummary: jest.fn(),
 } ) );
 
 jest.mock( '@woocommerce/csv-export', () => {
@@ -28,43 +29,28 @@ jest.mock( '@woocommerce/csv-export', () => {
 
 const mockDisputes = [
 	{
-		id: 'dp_asdfghjkl',
+		dispute_id: 'dp_asdfghjkl',
 		amount: 1000,
 		currency: 'usd',
-		created: 1572590800,
-		evidence_details: {
-			due_by: 1573199200,
-		},
-		reason: 'fraudulent',
-		status: 'needs_response',
-		charge: {
-			id: 'ch_mock',
-			payment_method_details: {
-				card: {
-					brand: 'visa',
-				},
-			},
-			billing_details: {
-				name: 'Mock customer',
-				email: 'mock@customer.net',
-				address: {
-					country: 'US',
-				},
-			},
-		},
+		customer_name: 'Mock customer',
+		customer_email: 'mock@customer.net',
+		customer_country: 'US',
+		created: '2019-11-01 06:46:40',
+		due_by: '2019-11-08 07:46:40',
 		order: {
 			number: '1',
 			url: 'http://test.local/order/1',
 		},
+		reason: 'fraudulent',
+		source: 'visa',
+		status: 'needs_response',
 	},
 	{
-		id: 'dp_zxcvbnm',
+		dispute_id: 'dp_zxcvbnm',
 		amount: 1050,
 		currency: 'usd',
-		created: 1572480800,
-		evidence_details: {
-			due_by: 1573099200,
-		},
+		created: '2019-10-30 12:13:20',
+		due_by: '2019-11-07 04:00:00',
 		reason: 'general',
 		status: 'under_review',
 		// dispute without order or charge information
@@ -82,6 +68,13 @@ describe( 'Disputes list', () => {
 		useDisputes.mockReturnValue( {
 			isLoading: false,
 			disputes: mockDisputes,
+		} );
+
+		useDisputesSummary.mockReturnValue( {
+			isLoading: false,
+			disputesSummary: {
+				count: 25,
+			},
 		} );
 
 		const { container: list } = render( <DisputesList /> );
@@ -119,6 +112,13 @@ describe( 'Disputes list', () => {
 			useDisputes.mockReturnValue( {
 				disputes: mockDisputes,
 				isLoading: false,
+			} );
+
+			useDisputesSummary.mockReturnValue( {
+				isLoading: false,
+				disputesSummary: {
+					count: 25,
+				},
 			} );
 		} );
 

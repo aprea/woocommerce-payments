@@ -62,3 +62,13 @@ export const useDisputes = ( {
 		},
 		[ paged, perPage ]
 	);
+
+export const useDisputesSummary = () =>
+	useSelect( ( select ) => {
+		const { getDisputesSummary, isResolving } = select( STORE_NAME );
+
+		return {
+			disputesSummary: getDisputesSummary(),
+			isLoading: isResolving( 'getDisputesSummary' ),
+		};
+	}, [] );
