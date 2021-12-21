@@ -1,0 +1,16 @@
+name: Slash Command Build
+on:
+  repository_dispatch:
+    types: [build-command]
+jobs:
+  slash:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Create comment
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          token: ${{ secrets.PAT }}
+          repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
+          issue-number: ${{ github.event.client_payload.github.payload.issue.number }}
+          body: |
+            Hello!
