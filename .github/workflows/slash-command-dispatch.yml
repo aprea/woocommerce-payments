@@ -11,6 +11,6 @@ jobs:
         with:
           issue-type: pull-request
           permission: write
-          # token: ${{ secrets.PAT }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           commands: |
             build
