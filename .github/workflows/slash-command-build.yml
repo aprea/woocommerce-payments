@@ -37,13 +37,8 @@ jobs:
           npm ci
           npm run build
 
-          if [[ ! -f woocommerce-payments.zip ]]; then
-            echo "Failed to create build zip"
-            exit 1
-          fi
-
       - uses: actions/upload-artifact@v2
         with:
-          name: woocommerce-payments-build-${{ github.event.client_payload.github.payload.issue.number }}
-          path: woocommerce-payments.zip
+          name: woocommerce-payments-pr-${{ github.event.client_payload.github.payload.issue.number }}
+          path: release/*
           if-no-files-found: error
