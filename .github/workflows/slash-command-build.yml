@@ -6,7 +6,7 @@ jobs:
   slashCommandBuild:
     runs-on: ubuntu-20.04
     steps:
-      # clone the repository
+      # Clone the repository
       - uses: actions/checkout@v2
 
       # Use project specific node version
@@ -14,7 +14,7 @@ jobs:
         with:
           node-version-file: '.nvmrc'
 
-      # enable dependencies caching (vendor and node_modules are wiped during build so they are ignored here)
+      # Enable dependencies caching (vendor and node_modules are wiped during build so they are ignored here)
       - uses: actions/cache@v2
         with:
           path: ~/.cache/composer/
@@ -25,18 +25,20 @@ jobs:
           path: ~/.npm/
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
 
-      # setup PHP, but without debug extensions for reasonable performance
+      # Setup PHP, but without debug extensions for reasonable performance
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '7.4'
           tools:       composer
           coverage:    none
 
+      # Build WooCommerce Payments.
       - name: Build release
         run: |
           npm ci
           npm run build
 
+      # Upload the built files as an artifact.
       - uses: actions/upload-artifact@v2
         with:
           name: woocommerce-payments-pr-${{ github.event.client_payload.github.payload.issue.number }}
