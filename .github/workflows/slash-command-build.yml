@@ -6,10 +6,6 @@ jobs:
   slashCommandBuild:
     runs-on: ubuntu-20.04
     steps:
-      - name: Branch
-        run: |
-          echo "${{ github.event.client_payload.pull_request.head.sha }}"
-
       # Clone the repository
       - uses: actions/checkout@v2
         with:
