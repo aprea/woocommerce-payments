@@ -51,7 +51,7 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         with:
-          name: my-file
+          name: my-file-${{ github.event.client_payload.github.payload.issue.number }}
           path: myfile.txt
           if-no-files-found: error
 
