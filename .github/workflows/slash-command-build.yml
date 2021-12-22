@@ -6,6 +6,10 @@ jobs:
   slashCommandBuild:
     runs-on: ubuntu-20.04
     steps:
+      - name: Branch
+        run: |
+          echo "${{ github.event.client_payload.slash_command.args.named.branch }}"
+
       # Clone the repository
       - uses: actions/checkout@v2
         with:
