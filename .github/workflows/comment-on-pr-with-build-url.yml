@@ -5,7 +5,7 @@ on:
     types: [completed]
 jobs:
   commentOnPrWithBuildUrl:
-    # if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success'
+    if: github.event.workflow_run.event == 'repository_dispatch' && github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-20.04
     steps:
       # - name: Get artifact ID
@@ -14,7 +14,6 @@ jobs:
 
       #     echo "$artifacts"
 
-
-      - name: Get workflow event
+      - name: Get workflow run ID
         run: |
-          echo "${{github.event.workflow_run.event}}"
+          echo "${{github.event.workflow_run.id}}"
