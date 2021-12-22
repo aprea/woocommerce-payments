@@ -8,12 +8,12 @@ jobs:
     steps:
       - name: Branch
         run: |
-          echo "${{ github.event.client_payload.github.payload.named.ref }}"
+          echo "${{ github.event.client_payload.pull_request.head.sha }}"
 
       # Clone the repository
       - uses: actions/checkout@v2
         with:
-          ref: ${{ github.event.client_payload.slash_command.args.named.ref }}
+          ref: ${{ github.event.client_payload.pull_request.head.sha }}
 
       # Use project specific node version
       - uses: actions/setup-node@v2
