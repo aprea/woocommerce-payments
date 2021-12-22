@@ -14,6 +14,8 @@
  * Requires PHP: 7.0
  * Version: 3.4.0
  *
+ * Hello from the deposits page!
+ *
  * @package WooCommerce\Payments
  */
 
