@@ -11,9 +11,14 @@ jobs:
       - name: Fetch artifacts
         id: fetch_artifacts
         run: |
-          artifact_id=$(curl -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/${{github.repository}}/actions/runs/${{github.event.workflow_run.id}}/artifacts | jq .artifacts[0].id)
+          artifact=$(curl -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/${{github.repository}}/actions/runs/${{github.event.workflow_run.id}}/artifacts | jq .artifacts[0])
+          artifact_id=$(jq -r '.id' <<< "${artifact}")
+          artifact_name=$(jq -r '.name' <<< "${artifact}")
+          issue_id=${artifact_name##*-}
           echo "::set-output name=artifact_id::${artifact_id}"
+          echo "::set-output name=issue_id::${issue_id}"
 
-      - name: Get artifact ID
+      - name: Get details
         run: |
           echo "${{steps.fetch_artifacts.outputs.artifact_id}}"
+          echo "${{steps.fetch_artifacts.outputs.issue_id}}"
