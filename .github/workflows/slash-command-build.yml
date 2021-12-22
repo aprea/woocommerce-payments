@@ -6,51 +6,44 @@ jobs:
   slashCommandBuild:
     runs-on: ubuntu-20.04
     steps:
-      # # clone the repository
-      # - uses: actions/checkout@v2
+      # clone the repository
+      - uses: actions/checkout@v2
 
-      # # Use project specific node version
-      # - uses: actions/setup-node@v2
-      #   with:
-      #     node-version-file: '.nvmrc'
+      # Use project specific node version
+      - uses: actions/setup-node@v2
+        with:
+          node-version-file: '.nvmrc'
 
-      # # enable dependencies caching (vendor and node_modules are wiped during build so they are ignored here)
-      # - uses: actions/cache@v2
-      #   with:
-      #     path: ~/.cache/composer/
-      #     key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
-      # - uses: actions/cache@v2
-      #   with:
-      #     path: ~/.npm/
-      #     key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
-      # # setup PHP, but without debug extensions for reasonable performance
-      # - uses: shivammathur/setup-php@v2
-      #   with:
-      #     php-version: '7.4'
-      #     tools:       composer
-      #     coverage:    none
+      # enable dependencies caching (vendor and node_modules are wiped during build so they are ignored here)
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/composer/
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
 
-      # - name: Build release
-      #   run: |
-      #     npm ci
-      #     npm run build
+      - uses: actions/cache@v2
+        with:
+          path: ~/.npm/
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
 
-      #     if [[ ! -f woocommerce-payments.zip ]]; then
-      #       echo "Failed to create build zip"
-      #       exit 1
-      #     fi
+      # setup PHP, but without debug extensions for reasonable performance
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          tools:       composer
+          coverage:    none
 
-      # - uses: actions/upload-artifact@v2
-      #   with:
-      #     name: woocommerce-payments-build
-      #     path: woocommerce-payments.zip
-      #     if-no-files-found: error
-      - name: Create file
+      - name: Build release
         run: |
-          echo "File contents" > myfile.txt
+          npm ci
+          npm run build
+
+          if [[ ! -f woocommerce-payments.zip ]]; then
+            echo "Failed to create build zip"
+            exit 1
+          fi
 
       - uses: actions/upload-artifact@v2
         with:
-          name: my-file-${{ github.event.client_payload.github.payload.issue.number }}
-          path: myfile.txt
+          name: woocommerce-payments-build-${{ github.event.client_payload.github.payload.issue.number }}
+          path: woocommerce-payments.zip
           if-no-files-found: error
